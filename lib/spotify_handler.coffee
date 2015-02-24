@@ -57,7 +57,7 @@ class SpotifyHandler
       @play()
     # If we started fresh, get the one that we used last time
     else if last_playlist = @storage.getItem 'last_playlist'
-      last_track = @storage.getItem 'last_track'
+      last_track = @storage.getItem 'track'
       @set_playlist last_playlist, last_track
     # If that didn't work, try one named "default"
     else if @playlists.default?
@@ -224,10 +224,10 @@ class SpotifyHandler
     if @playlists[name]?
       playlist = @spotify.createFromLink @playlists[name]
       if playlist && playlist.isLoaded
-        @_set_playlist_callback name, playlist, index
+        @_set_playlist_callback name, playlist, track
       else if playlist
         @spotify.waitForLoaded [playlist], (playlist) =>
-          @_set_playlist_callback name, playlist, index
+          @_set_playlist_callback name, playlist, track
           return true
     return true
 
@@ -243,6 +243,7 @@ class SpotifyHandler
     @state.track.index = 0
     # find any previous track
     if track?
+      console.log "track: #{track}"
       potential = @state.playlist.object.getTrack(track.playlist_index)
       if potential.link == track.link
         @state.track.index = track.playlist_index
