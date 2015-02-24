@@ -22,7 +22,7 @@ class SpotifyHandler
         index: 0
         name: null
         artists: null
-        votes: 0
+        votes: []
       playlist:
         name: null
         object: null
@@ -181,7 +181,7 @@ class SpotifyHandler
     @state.track.artists = @state.track.object.artists.map((artist) ->
       artist.name
     ).join ", "
-    @state.track.votes = 0
+    @state.track.votes = []
 
     @spotify.player.play @state.track.object
     @playing = true
