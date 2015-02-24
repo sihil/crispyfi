@@ -2,3 +2,5 @@ cache/*
 settings/*
 node_modules/*
 persist/*
+config.json
+spotify_appkey.key
