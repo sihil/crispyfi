@@ -125,6 +125,7 @@ class SpotifyHandler
       @play next_track
     else
       @stop
+    @store_index()
     return
 
 
@@ -201,10 +202,10 @@ class SpotifyHandler
         @state.track.index = ++@state.track.index % @state.playlist.object.numTracks
       else
         @state.track.index = ++@state.track.index
-    @store_index()
     @state.playlist.object.getTrack(@state.track.index)
 
   store_index: ->
+    console.log("Setting last_index to #{@state.track.index}")
     @storage.setItem 'last_index', @state.track.index
 
   # Changes the current playlist and starts playing.
