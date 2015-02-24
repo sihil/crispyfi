@@ -76,8 +76,8 @@ class SpotifyHandler
   # Called after the current playlist has been updated.
   # Simply replaces the current playlist-instance with the new one and re-bind events.
   # Player-internal state (number of tracks in the playlist, current index, etc.) is updated on @get_next_track().
-  update_playlist: (err, playlist, tracks, position) ->
-    console.log("update_playlist: #{err}, #{playlist}, #{tracks}, #{position}")
+  update_playlist: (err, playlist) ->
+    console.log("update_playlist event")
     console.log("new playlist size: #{playlist.numTracks}")
     if @state.playlist.object?
       # Remove event handlers from the old playlist
@@ -85,10 +85,6 @@ class SpotifyHandler
       console.log("old playlist size: #{@state.playlist.numTracks}")
 
     @state.playlist.object = playlist
-    @state.playlist.object.on
-      tracksAdded: @update_playlist.bind(this)
-      tracksRemoved: @update_playlist.bind(this)
-      tracksMoved: @update_playlist.bind(this)
 
     @state.playlist.object.on
       tracksAdded: (err, playlist, tracks, position) ->
@@ -98,12 +94,14 @@ class SpotifyHandler
             @state.track.index++
             console.log "Adding track #{track.link} #{track.name}"
           @store_track()
+        @update_playlist(err, playlist)
       tracksRemoved: (err, playlist, trackIndices) ->
         console.log "tracksRemoved event"
         for track_index in trackIndices
           if track_index <= @state.track.index
             @state.track.index--
         @store_track()
+        @update_playlist(err, playlist)
       tracksMoved: (err, playlist, trackIndices, position) ->
         console.log "tracksMoved event"
         for track_index in trackIndices
@@ -112,6 +110,7 @@ class SpotifyHandler
           if position <= @state.track.index
             @state.track.index += position
         @store_track()
+        @update_playlist(err, playlist)
     return
 
 
