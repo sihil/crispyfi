@@ -16,7 +16,7 @@ class SpotifyHandler
     @state = {
       shuffle: false
       loop: false
-      chorum: 3
+      chorum: @config.chorum || 1
       track:
         object: null
         index: 0
