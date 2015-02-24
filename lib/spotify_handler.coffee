@@ -15,11 +15,13 @@ class SpotifyHandler
 
     @state = {
       shuffle: false
+      loop: false
       track:
         object: null
         index: 0
         name: null
         artists: null
+        votes: 0
       playlist:
         name: null
         object: null
@@ -76,6 +78,18 @@ class SpotifyHandler
     if @state.playlist.object?
       # Remove event handlers from the old playlist
       @state.playlist.object.off()
+    if tracks
+      # adding or removing tracks
+      if position
+        # adding tracks (increment play position if tracks inserted before play index)
+        if position <= @state.track.index
+          @state.track.index += tracks.length
+      else
+        # removing tracks (decrement play position for any track removed before play index)
+        for track_index in tracks
+          if track_index <= @state.track.index
+            @state.track.index--
+
     @state.playlist.object = playlist
     @state.playlist.object.on
       tracksAdded: @update_playlist.bind(this)
@@ -102,7 +116,11 @@ class SpotifyHandler
 
   # Plays the next track in the playlist
   skip: ->
-    @play @get_next_track()
+    next_track = @get_next_track()
+    if next_track
+      @play next_track
+    else
+      @stop
     return
 
 
@@ -162,6 +180,7 @@ class SpotifyHandler
     @state.track.artists = @state.track.object.artists.map((artist) ->
       artist.name
     ).join ", "
+    @state.track.votes = 0
 
     @spotify.player.play @state.track.object
     @playing = true
@@ -170,10 +189,14 @@ class SpotifyHandler
 
   # Gets the next track from the playlist.
   get_next_track: ->
+    # attempt to track the index (songs inserted / removed before index)
     if @shuffle
       @state.track.index = Math.floor(Math.random() * @state.playlist.object.numTracks)
     else
-      @state.track.index = ++@state.track.index % @state.playlist.object.numTracks
+      if @loop
+        @state.track.index = ++@state.track.index % @state.playlist.object.numTracks
+      else
+        @state.track.index = ++@state.track.index
     @state.playlist.object.getTrack(@state.track.index)
 
 
