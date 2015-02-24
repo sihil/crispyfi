@@ -77,12 +77,13 @@ class SpotifyHandler
   # Simply replaces the current playlist-instance with the new one and re-bind events.
   # Player-internal state (number of tracks in the playlist, current index, etc.) is updated on @get_next_track().
   update_playlist: (err, playlist, tracks, position) ->
+    console.log("update_playlist: #{err}, #{playlist}, #{tracks}, #{position}")
     if @state.playlist.object?
       # Remove event handlers from the old playlist
       @state.playlist.object.off()
     if tracks
       # adding or removing tracks
-      if position
+      if position?
         # adding tracks (increment play position if tracks inserted before play index)
         if position <= @state.track.index
           @state.track.index += tracks.length
