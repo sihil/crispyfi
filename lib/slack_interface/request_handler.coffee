@@ -25,11 +25,11 @@ class SlackInterfaceRequestHandler
               when 'skip'
                 @spotify.state.track.votes++
 
-                if @spotify.state.track.votes >= 3
+                if @spotify.state.track.votes >= @spotify.state.chorum
                   @spotify.skip()
                   reply_data['text'] = "You are currently letting your ears feast on the beautiful tune titled *#{@spotify.state.track.name}* from *#{@spotify.state.track.artists}*."
                 else
-                  required = @skip_chorum - @skip_votes
+                  required = @spotify.state.chorum - @spotify.state.track.votes
                   reply_data['text'] = "Need another #{required} more votes before I skip this track"
 
               when 'play'
