@@ -57,7 +57,8 @@ class SpotifyHandler
       @play()
     # If we started fresh, get the one that we used last time
     else if last_playlist = @storage.getItem 'last_playlist'
-      @set_playlist last_playlist
+      last_index = @storage.getItem 'last_index'
+      @set_playlist last_playlist, last_index
     # If that didn't work, try one named "default"
     else if @playlists.default?
       @set_playlist 'default'
@@ -85,11 +86,13 @@ class SpotifyHandler
         # adding tracks (increment play position if tracks inserted before play index)
         if position <= @state.track.index
           @state.track.index += tracks.length
+          @store_index()
       else
         # removing tracks (decrement play position for any track removed before play index)
         for track_index in tracks
           if track_index <= @state.track.index
             @state.track.index--
+        @store_index()
 
     @state.playlist.object = playlist
     @state.playlist.object.on
@@ -198,32 +201,35 @@ class SpotifyHandler
         @state.track.index = ++@state.track.index % @state.playlist.object.numTracks
       else
         @state.track.index = ++@state.track.index
+    @store_index()
     @state.playlist.object.getTrack(@state.track.index)
 
+  store_index: ->
+    @storage.setItem 'last_index', @state.track.index
 
   # Changes the current playlist and starts playing.
   # Since the playlist might have loaded before we can attach our callback, the actual playlist-functionality
   # is extracted to _set_playlist_callback which we call either directly or delayed once it has loaded.
-  set_playlist: (name) ->
+  set_playlist: (name, index) ->
     if @playlists[name]?
       playlist = @spotify.createFromLink @playlists[name]
       if playlist && playlist.isLoaded
-        @_set_playlist_callback name, playlist
+        @_set_playlist_callback name, playlist, index
       else if playlist
         @spotify.waitForLoaded [playlist], (playlist) =>
-          @_set_playlist_callback name, playlist
+          @_set_playlist_callback name, playlist, index
           return true
     return true
 
 
   # The actual handling of the new playlist once it has been loaded.
-  _set_playlist_callback: (name, playlist) ->
+  _set_playlist_callback: (name, playlist, index) ->
     @state.playlist.name = name
 
     # Update our internal state
     @update_playlist null, playlist
 
-    @state.track.index = 0
+    @state.track.index = index || 0
     @play @state.playlist.object.getTrack(@state.track.index)
     # Also store the name as our last_playlist for the next time we start up
     @storage.setItem 'last_playlist', name
@@ -249,7 +255,6 @@ class SpotifyHandler
     delete @playlists[old_name]
     @storage.setItem 'playlists', @playlists
     return true
-
 
   # Removes Everything that shouldn't be in a link, especially Slack's <> encasing
   _sanitize_link: (link) ->
