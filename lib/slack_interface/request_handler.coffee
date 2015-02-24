@@ -23,10 +23,10 @@ class SlackInterfaceRequestHandler
               when 'unmute' then @volume.set 5
 
               when 'skip'
-                if @request.user in @spotify.state.track.votes
-                  reply_data['text'] = "You already voted #{@request.user_name}."
+                if request.body.user in @spotify.state.track.votes
+                  reply_data['text'] = "You already voted #{request.body.user_name}."
                 else
-                  @spotify.state.track.votes.push @request.user
+                  @spotify.state.track.votes.push request.body.user
 
                   if @spotify.state.track.votes.length >= @spotify.state.chorum
                     @spotify.skip()
