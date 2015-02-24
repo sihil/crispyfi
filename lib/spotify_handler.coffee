@@ -80,29 +80,38 @@ class SpotifyHandler
     console.log("update_playlist: #{err}, #{playlist}, #{tracks}, #{position}")
     console.log("new playlist size: #{playlist.numTracks}")
     if @state.playlist.object?
-      console.log("old playlist size: #{@state.playlist.numTracks}")
       # Remove event handlers from the old playlist
       @state.playlist.object.off()
-    if tracks
-      # adding or removing tracks
-      if position?
-        # adding tracks (increment play position if tracks inserted before play index)
-        if position <= @state.track.index
-          for track in tracks
-            @state.track.index++
-            console.log "Adding track #{track.link} #{track.name}"
-          @store_track()
-      else
-        # removing tracks (decrement play position for any track removed before play index)
-        for track_index in tracks
-          if track_index <= @state.track.index
-            @state.track.index--
-        @store_track()
+      console.log("old playlist size: #{@state.playlist.numTracks}")
 
     @state.playlist.object = playlist
     @state.playlist.object.on
       tracksAdded: @update_playlist.bind(this)
       tracksRemoved: @update_playlist.bind(this)
+      tracksMoved: @update_playlist.bind(this)
+
+    @state.playlist.object.on
+      tracksAdded: (err, playlist, tracks, position) ->
+        console.log "tracksAdded event"
+        if position <= @state.track.index
+          for track in tracks
+            @state.track.index++
+            console.log "Adding track #{track.link} #{track.name}"
+          @store_track()
+      tracksRemoved: (err, playlist, trackIndices) ->
+        console.log "tracksRemoved event"
+        for track_index in trackIndices
+          if track_index <= @state.track.index
+            @state.track.index--
+        @store_track()
+      tracksMoved: (err, playlist, trackIndices, position) ->
+        console.log "tracksMoved event"
+        for track_index in trackIndices
+          if track_index <= @state.track.index
+            @state.track.index--
+          if position <= @state.track.index
+            @state.track.index += position
+        @store_track()
     return
 
 
