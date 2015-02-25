@@ -244,9 +244,6 @@ class SpotifyHandler
   _set_playlist_callback: (name, playlist, track) ->
     @state.playlist.name = name
 
-    # Update our internal state
-    @update_playlist null, playlist
-
     # default to the first track in the pla
     @state.track.index = 0
     # find any previous track
@@ -264,6 +261,9 @@ class SpotifyHandler
             console.log("yes")
             @state.track.index = i
             break
+
+    # Update our internal state
+    @update_playlist null, playlist
 
     @play @state.playlist.object.getTrack(@state.track.index)
     # Also store the name as our last_playlist for the next time we start up
