@@ -111,8 +111,8 @@ class SpotifyHandler
         for track_index in trackIndices
           if track_index <= @state.track.index
             @state.track.index--
-          if position <= @state.track.index
-            @state.track.index += position
+        if position <= @state.track.index
+          @state.track.index += trackIndices.length
         @store_track()
         @update_playlist(err, playlist)
     return
