@@ -88,7 +88,7 @@ class SpotifyHandler
 
     @state.playlist.object.on
       tracksAdded: (err, playlist, tracks, position) ->
-        console.log "tracksAdded event"
+        console.log "tracksAdded event (#{tracks.length},#{position})"
         if position <= @state.track.index
           for track in tracks
             @state.track.index++
@@ -96,14 +96,14 @@ class SpotifyHandler
           @store_track()
         @update_playlist(err, playlist)
       tracksRemoved: (err, playlist, trackIndices) ->
-        console.log "tracksRemoved event"
+        console.log "tracksRemoved event (#{trackIndices.length})"
         for track_index in trackIndices
           if track_index <= @state.track.index
             @state.track.index--
         @store_track()
         @update_playlist(err, playlist)
       tracksMoved: (err, playlist, trackIndices, position) ->
-        console.log "tracksMoved event"
+        console.log "tracksMoved event (#{trackIndices.length},#{position})"
         for track_index in trackIndices
           if track_index <= @state.track.index
             @state.track.index--
