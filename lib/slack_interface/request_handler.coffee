@@ -14,7 +14,7 @@ class SlackInterfaceRequestHandler
 
             reply_data = { ok: true }
 
-            if request.body.user in ['sihil'] || @auth.command in ['skip','user','status']
+            if request.body.user_id in ['sihil'] || @auth.command in ['skip','user','status']
               switch @auth.command
                 when 'pause' then @spotify.pause()
                 when 'stop' then @spotify.stop()
@@ -23,13 +23,13 @@ class SlackInterfaceRequestHandler
                 when 'mute' then @volume.set 0
                 when 'unmute' then @volume.set 5
                 when 'user'
-                  reply_data['text'] = "Your user ID is `#{request.body.user}`"
+                  reply_data['text'] = "Your user ID is `#{request.body.user_id}`"
 
                 when 'skip'
-                  if request.body.user in @spotify.state.track.votes
+                  if request.body.user_id in @spotify.state.track.votes
                     reply_data['text'] = "You already voted #{request.body.user_name}."
                   else
-                    @spotify.state.track.votes.push request.body.user
+                    @spotify.state.track.votes.push request.body.user_id
 
                     if @spotify.state.track.votes.length >= @spotify.state.chorum
                       @spotify.skip()
