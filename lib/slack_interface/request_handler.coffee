@@ -14,7 +14,7 @@ class SlackInterfaceRequestHandler
 
             reply_data = { ok: true }
 
-            if @request.body.user_id in @spotify.superusers || @auth.command in ['skip','user','status']
+            if request.body.user_id in @spotify.superusers || @auth.command in ['skip','user','status']
               switch @auth.command
                 when 'pause' then @spotify.pause()
                 when 'stop' then @spotify.stop()
