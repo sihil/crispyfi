@@ -14,7 +14,7 @@ class SlackInterfaceRequestHandler
 
             reply_data = { ok: true }
 
-            if request.body.user_id in ['sihil'] || @auth.command in ['skip','user','status']
+            if @request.body.user_id in @spotify.state.superusers || @auth.command in ['skip','user','status']
               switch @auth.command
                 when 'pause' then @spotify.pause()
                 when 'stop' then @spotify.stop()
@@ -24,6 +24,13 @@ class SlackInterfaceRequestHandler
                 when 'unmute' then @volume.set 5
                 when 'user'
                   reply_data['text'] = "Your user ID is `#{request.body.user_id}`"
+
+                when 'superuser'
+                  if @auth.args[0]?
+                    add_superuser @auth.args[0]
+                    reply_data['text'] = "User made more equal."
+                  else
+                    reply_data['text'] = "Give me a user to make more equal."
 
                 when 'skip'
                   if request.body.user_id in @spotify.state.track.votes
@@ -91,7 +98,7 @@ class SlackInterfaceRequestHandler
                   else if !@spotify.is_playing()
                     reply_data['text'] = "Playback is currently *stopped*. You can start it again by choosing an available `list`."
                   else
-                    reply_data['text'] = "You are currently letting your ears feast on the beautiful tune titled *#{@spotify.state.track.name}* from *#{@spotify.state.track.artists}*.\nYou are on track #{@spotify.state.track.index} of #{@spotify.state.playlist.object.numTracks} in *#{@spotify.state.playlist.name}*."
+                    reply_data['text'] = "You are currently letting your ears feast on the beautiful tune titled *#{@spotify.state.track.name}* from *#{@spotify.state.track.artists}*.\nYou are on track #{@spotify.state.track.index+1} of #{@spotify.state.playlist.object.numTracks} in *#{@spotify.state.playlist.name}*."
 
                 when 'help'
                   reply_data['text'] = "You seem lost. Here is a list of commands that are available to you:   \n   \n*Commands*\n> `play [Spotify URI]` - Starts/resumes playback if no URI is provided. If a URI is given, immediately switches to the linked track.\n> `pause` - Pauses playback at the current time.\n> `stop` - Stops playback and resets to the beginning of the current track.\n> `skip` - Skips (or shuffles) to the next track in the playlist.\n> `shuffle` - Toggles shuffle on or off.\n> `vol [up|down|0..10]` Turns the volume either up/down one notch or directly to a step between `0` (mute) and `10` (full blast). Also goes to `11`.\n> `mute` - Same as `vol 0`.\n> `unmute` - Same as `vol 0`.\n> `status` - Shows the currently playing song, playlist and whether you're shuffling or not.\n> `help` - Shows a list of commands with a short explanation.\n   \n*Playlists*\n> `list add <name> <Spotify URI>` - Adds a list that can later be accessed under <name>.\n> `list remove <name>` - Removes the specified list.\n> `list rename <old name> <new name>` - Renames the specified list.\n> `list <name>` - Selects the specified list and starts playback."

@@ -28,6 +28,10 @@ class SpotifyHandler
         object: null
     }
 
+    @default_superusers = @config.superusers || []
+    @stored_superusers = @storage.getItem('superusers') || []
+    @superusers = @default_superusers.concat @stored_superusers
+
     @playlists = @storage.getItem('playlists') || {}
 
     @spotify.on
@@ -297,6 +301,11 @@ class SpotifyHandler
           @play new_track
           return true
     return false
+
+  add_superuser: (user_id) ->
+    @superusers.push user_id
+    @stored_superusers.push user_id
+    @storage.setItem 'superusers', @stored_superusers
 
   # Removes Everything that shouldn't be in a link, especially Slack's <> encasing
   _sanitize_link: (link) ->
