@@ -249,20 +249,13 @@ class SpotifyHandler
     @state.track.index = 0
     # find any previous track
     if track?
-      console.log "track: #{track.playlist_index} #{track.link}"
-      console.log "looking in #{playlist.name}"
       potential = playlist.getTrack(track.playlist_index)
-      console.log "looking at #{potential.link}"
       if potential.link == track.link
         @state.track.index = track.playlist_index
       else
-        console.log "song has moved"
         # let's search for the track
         for i in [0...playlist.numTracks]
-          t = playlist.getTrack(i)
-          console.log "is it: #{i} / #{t.link}?"
-          if t.link == track.link
-            console.log "yes"
+          if playlist.getTrack(i).link == track.link
             @state.track.index = i
             break
 
@@ -294,6 +287,16 @@ class SpotifyHandler
     delete @playlists[old_name]
     @storage.setItem 'playlists', @playlists
     return true
+
+  jump_playlist: (jump_to) ->
+    new_track = @spotify.createFromLink @_sanitize_link(jump_to)
+    if new_track?
+      for i in [0...@state.playlist.object.numTracks]
+        if @state.playlist.object.getTrack(i).link == new_track.link
+          @state.track.index = i
+          @play new_track
+          return true
+    return false
 
   # Removes Everything that shouldn't be in a link, especially Slack's <> encasing
   _sanitize_link: (link) ->
