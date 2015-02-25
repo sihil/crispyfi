@@ -221,6 +221,7 @@ class SpotifyHandler
     track = {
       playlist_index: @state.track.index
       link: @state.track.object.link
+      name: @state.track.object.name
     }
     console.log("Setting track to #{track}")
     @storage.setItem 'track', track
@@ -257,9 +258,9 @@ class SpotifyHandler
       else
         console.log "song has moved"
         # let's search for the track
-        console.log "length: #{playlist.getTracks.length}"
-        for t, i in playlist.getTracks
-          console.log "is it: #{t.link}?"
+        for i in [0...playlist.numTracks]
+          t = playlist.getTrack(i)
+          console.log "is it: #{i} / #{t.link}?"
           if t.link == track.link
             console.log "yes"
             @state.track.index = i
