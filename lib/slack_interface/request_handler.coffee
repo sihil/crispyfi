@@ -102,8 +102,8 @@ class SlackInterfaceRequestHandler
                   if status?
                     reply_data['text'] = status
 
-              else
-                reply_data['text'] = "Sorry, some people are more equal than other people."
+            else
+              reply_data['text'] = "Sorry, some people are more equal than other people."
 
             response.serveJSON reply_data
             return
