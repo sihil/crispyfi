@@ -221,7 +221,7 @@ class SpotifyHandler
     track = {
       playlist_index: @state.track.index
       link: @state.track.object.link
-      name: @state.track.object.name
+      name: @state.track.name
     }
     console.log("Setting track to #{track}")
     @storage.setItem 'track', track
