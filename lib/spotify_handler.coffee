@@ -251,14 +251,17 @@ class SpotifyHandler
     @state.track.index = 0
     # find any previous track
     if track?
-      console.log "track: #{track}"
+      console.log "track: #{track.playlist_index} #{track.link}"
       potential = @state.playlist.object.getTrack(track.playlist_index)
       if potential.link == track.link
         @state.track.index = track.playlist_index
       else
+        console.log("song has moved")
         # let's search for the track
         for t, i in @state.playlist.object.getTracks
+          console.log("is it: #{t.link}?")
           if t.link == track.link
+            console.log("yes")
             @state.track.index = i
             break
 
